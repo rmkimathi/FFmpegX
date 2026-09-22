@@ -1,0 +1,21 @@
+Remux (Copy): -i {input1} -i {input2} -c copy {output_dir}/remux.mp4
+Merge Audio/Video: -i {input1} -i {input2} -c:v copy -c:a aac {output_dir}/merged.mp4
+Loop: -loop 1 -i {input1} -i {input2} -c:v h264_mediacodec -bitrate_mode cbr -b:v 500k -r 30 -g 30 -tune stillimage -pix_fmt yuv420p -vf scale=720:1280 -c:a aac -b:a 128k -shortest -hide_banner {output_dir}/loop.mp4
+Segment: -i {input1} -c copy -map 0 -segment_time 30 -f segment -reset_timestamps 1 -map_metadata -1 -hide_banner {output_dir}/segment%03d.mp4
+Version: -version
+Copy: -i {input1} -c copy -map_metadata -1 -hide_banner {output_dir}/copy.mp4
+Encoders: -encoders -hide_banner
+Buildconf: -buildconf -hide_banner
+Decoders: -decoders -hide_banner
+mediacodec: -i {input1} -c:v h264_mediacodec -bitrate_mode cbr -b:v 500k -r 30 -g 30 -c:a aac -map_metadata -1 -hide_banner {output_dir}/mediacodec.mp4
+Fade: -i {input1} -c:v h264_mediacodec -bitrate_mode cbr -b:v 500k -r 30 -g 30 -c:a aac -vf fade=t=in:st=0:d=10,fade=t=out:st=50:d=10 -af afade=t=in:st=0:d=10,afade=t=out:st=50:d=10 -map_metadata -1 -hide_banner {output_dir}/fade.mp4
+Scale libx264: -i {input1} -c:v libx264 -crf 32 -r 30 -g 30 -vf scale=iw/2:-2 -c:a aac -map_metadata -1 -hide_banner {output_dir}/scale-libx264.mp4
+File info: -i {input1} -hide_banner
+CCTV: -i {input1} -c:v libx264 -crf 32 -r 30 -g 30 -vf scale=iw/2:-2 -c:a aac -ac 2 -ar 44100 -b:a 96k -map_metadata -1 -hide_banner {output_dir}/cctv.mp4
+Help Long: -h long -hide_banner
+Help type=name: -h encoder=h264_mediacodec -hide_banner
+mp3: -i {input1} -map_metadata -1 -hide_banner {output_dir}/audio.mp3
+Scale hevc_mediacodec: -i {input1} -c:v hevc_mediacodec -bitrate_mode cbr -b:v 1M -r 30 -g 30 -vf scale=iw/2:-2 -c:a aac -map_metadata -1 -hide_banner {output_dir}/"Scale hevc_mediacodec.mp4"
+Scale h264_mediacodec: -i {input1} -c:v h264_mediacodec -bitrate_mode cbr -b:v 500k -r 30 -g 30 -vf scale=iw/2:-2 -c:a aac -map_metadata -1 -hide_banner {output_dir}/"Scale h264_mediacodec.mp4"
+AV1 Scale h264_mediacodec: -c:v av1_mediacodec -i {input1} -c:v h264_mediacodec -bitrate_mode cbr -b:v 500k -r 30 -g 30 -vf scale=iw/2:-2 -c:a aac -map_metadata -1 -hide_banner {output_dir}/"AV1 Scale h264_mediacodec.mp4"
+hevc_mediacodec (CQ): -i {input1} -c:v hevc_mediacodec -bitrate_mode cq -global_quality:v 60 -pix_fmt nv12 -vf scale=iw/2:-2 -r 30 -g 30 -c:a aac -map_metadata -1 -hide_banner {output_dir}/hevc-cq.mp4
