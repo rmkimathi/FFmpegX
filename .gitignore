@@ -3,3 +3,9 @@
 /app/build/
 /app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/
 /build/
+local.properties
+/.idea/
+/.kotlin/
+.DS_Store
+*.jks
+*.keystore
