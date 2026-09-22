@@ -1,5 +1,6 @@
 # FFmpegX — Developer Documentation
-![Uploading ffmpegx.jpg…]()
+
+<img src="images/ffmpegx.jpg" alt="Alt text" width="500">
 
 Developer-level documentation of the FFmpegX Android application's process
 logic, architecture, strengths, and potential improvements.
