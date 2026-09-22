@@ -1,4 +1,5 @@
 # FFmpegX — Developer Documentation
+![Uploading ffmpegx.jpg…]()
 
 Developer-level documentation of the FFmpegX Android application's process
 logic, architecture, strengths, and potential improvements.
