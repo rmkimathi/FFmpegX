@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvCodecName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold"
+                tools:text="OMX.google.h264.encoder" />
+
+            <TextView
+                android:id="@+id/tvHardwareTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="@string/text_hardware"
+                android:textColor="#4CAF50"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tvCodecMime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            tools:text="MIME: video/avc" />
+
+        <TextView
+            android:id="@+id/tvVendorSoftware"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            tools:text="Vendor: Yes | Software Only: No" />
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp" />
+
+        <include
+            android:id="@+id/rowProfiles"
+            layout="@layout/view_codec_info_row" />
+
+        <include
+            android:id="@+id/rowLevels"
+            layout="@layout/view_codec_info_row" />
+
+        <include
+            android:id="@+id/rowMaxRes"
+            layout="@layout/view_codec_info_row" />
+
+        <include
+            android:id="@+id/rowMaxFps"
+            layout="@layout/view_codec_info_row" />
+
+        <include
+            android:id="@+id/rowBitrate"
+            layout="@layout/view_codec_info_row" />
+
+        <include
+            android:id="@+id/rowBitrateModes"
+            layout="@layout/view_codec_info_row" />
+
+        <include
+            android:id="@+id/row10Bit"
+            layout="@layout/view_codec_info_row" />
+
+        <include
+            android:id="@+id/rowHdr"
+            layout="@layout/view_codec_info_row" />
+
+        <include
+            android:id="@+id/rowColorFormats"
+            layout="@layout/view_codec_info_row" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

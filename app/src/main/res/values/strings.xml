@@ -1,0 +1,50 @@
+<resources>
+    <string name="app_name">FFmpegX</string>
+    <string name="btn_select_input_1">Select Input 1</string>
+    <string name="text_none">None</string>
+    <string name="btn_select_input_2">Select Input 2</string>
+    <string name="label_ffmpeg_binary">FFmpeg Binary (Built-in)</string>
+    <string name="text_waiting_binary">Detecting binary&#8230;</string>
+    <string name="title_templates_management">Templates Management</string>
+    <string name="hint_template">Template</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_export">Export</string>
+    <string name="btn_import">Import</string>
+    <string name="hint_template_name">Template Name</string>
+    <string name="hint_template_pattern">Template Pattern</string>
+    <string name="title_review_command">Review Execution Command</string>
+    <string name="hint_final_command">Final Command Line Arguments</string>
+    <string name="btn_review">Review</string>
+    <string name="btn_clear">Clear</string>
+    <string name="btn_run">Run</string>
+    <string name="title_console_output">Console Output</string>
+    <string name="text_console_ready">Console ready&#8230;\n</string>
+
+    <!-- MediaCodec Diagnostics -->
+    <string name="btn_mediacodec_diagnostics">MediaCodec Diagnostics</string>
+    <string name="title_mediacodec_diagnostics">MediaCodec Diagnostics</string>
+    <string name="title_system_info">System Info</string>
+    <string name="title_ffmpeg_mediacodec_encoders">FFmpeg MediaCodec Encoders</string>
+    <string name="title_hardware_vendor_encoders">Hardware/Vendor Encoders (H.264 / HEVC)</string>
+    <string name="text_checking">Checking&#8230;</string>
+    <string name="text_hardware">HARDWARE</string>
+    <string name="label_profiles">Profiles</string>
+    <string name="label_levels">Levels</string>
+    <string name="label_max_res">Max Res</string>
+    <string name="label_max_fps">Max FPS</string>
+    <string name="label_bitrate">Bitrate</string>
+    <string name="label_bitrate_modes">Bitrate Modes</string>
+    <string name="label_10bit">10-bit</string>
+    <string name="label_hdr10_hdr10plus">HDR10 / HDR10+</string>
+    <string name="label_color_formats">Color Formats</string>
+    <string name="text_yes">YES</string>
+    <string name="text_no">No</string>
+    <string name="text_present">Present</string>
+    <string name="text_missing">Missing</string>
+    <string name="text_binary_not_selected">FFmpeg binary not selected.</string>
+
+    <!-- Menu & About -->
+    <string name="menu_about">About</string>
+    <string name="menu_info">Documentation</string>
+</resources>

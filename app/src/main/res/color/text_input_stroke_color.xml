@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Color when the text field is focused (active typing) -->
+    <item android:color="#386567" android:state_focused="true" />
+    
+    <!-- Color when the text field is disabled -->
+    <item android:color="#FFA500" android:state_enabled="false" />
+    
+    <!-- Default color when the text field is idle / unfocused -->
+    <item android:color="#808080" />
+</selector>
+

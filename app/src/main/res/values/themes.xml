@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.FFmpegX" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Main branding colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/onPrimary</item>
+
+        <!-- UI Element colors -->
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/onSurface</item>
+        <item name="android:windowBackground">@color/background</item>
+
+        <!-- Global Button Style Overrides -->
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.Outlined</item>
+        <item name="borderlessButtonStyle">@style/Widget.App.Button.Text</item>
+    </style>
+
+    <!-- Base Button Style -->
+    <style name="Widget.App.Button" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/button_color</item>
+        <item name="android:textColor">@color/on_button_color</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Button</item>
+    </style>
+
+    <!-- Outlined Button Style -->
+    <style name="Widget.App.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Button</item>
+        <item name="strokeColor">@color/button_color</item>
+        <item name="android:textColor">@color/button_color</item>
+    </style>
+
+    <!-- Text Button Style -->
+    <style name="Widget.App.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/button_color</item>
+    </style>
+
+    <style name="ShapeAppearance.App.Button" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">4dp</item>
+    </style>
+
+    <!-- Custom shape for sharp rectangular corners -->
+    <style name="ShapeAppearance.App.Rectangular" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">4dp</item>
+    </style>
+
+    <!-- Custom style for the Dropdown Menu -->
+    <style name="Widget.App.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <!-- Links to your color state list selector -->
+        <item name="boxStrokeColor">@color/text_input_stroke_color</item>
+        <!-- Optional: Changes the color of the dropdown arrow icon -->
+        <item name="endIconTint">@color/text_input_stroke_color</item>
+    </style>
+
+    <!-- ADD THIS STYLE BLOCK RIGHT HERE -->
+    <style name="Theme.FFmpegX.TitleBold" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>

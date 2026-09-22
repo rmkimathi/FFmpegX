@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FFmpegX — Developer Documentation</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#20242a;--muted:#69727d;--border:#dce1e7;--accent:#2563eb;--code:#15181d;--side:#171a1f}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+nav{position:sticky;top:0;height:100vh;overflow:auto;padding:26px 18px;background:var(--side)}
+nav h2{color:#fff;margin:0 0 18px;font-size:1.15rem}nav a{display:block;padding:5px 8px;color:#d9dee5;text-decoration:none;border-radius:5px;font-size:.92rem}nav a:hover{background:#292e36;color:#fff}
+main{width:min(1080px,calc(100% - 44px));margin:auto;padding:44px 0 70px}
+header,.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:30px 34px;margin-bottom:20px}
+h1{margin:0 0 8px;font-size:1.9rem;line-height:1.2}h2{margin-top:8px;padding-bottom:8px;border-bottom:1px solid var(--border);font-size:1.55rem}h3{margin-top:28px;font-size:1.12rem}
+.subtitle{color:var(--muted);font-size:1.06rem}.note{border-left:4px solid var(--accent);background:#f3f6ff;padding:12px 16px;margin:18px 0}
+code{font-family:"DejaVu Sans Mono",monospace;background:#eef0f3;padding:2px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);color:#e8ebef;padding:17px;border-radius:8px;overflow:auto;line-height:1.5}pre code{background:transparent;color:inherit;padding:0}
+table{width:100%;border-collapse:collapse;margin:18px 0}th,td{border:1px solid var(--border);padding:9px 11px;text-align:left;vertical-align:top}th{background:#f0f2f5}
+.flow{display:grid;gap:7px;margin:18px 0}.flow div{padding:10px 14px;border:1px solid var(--border);border-radius:7px;background:#fafbfc}.flow .arrow{border:0;background:transparent;text-align:center;padding:0;color:var(--muted)}
+footer{text-align:center;color:var(--muted);padding:25px}
+@media(max-width:760px){.layout{display:block}nav{position:relative;height:auto}main{width:calc(100% - 20px);padding-top:20px}header,.section{padding:22px}h1{font-size:1.9rem}}
+@media print{nav{display:none}.layout{display:block}main{width:100%;padding:0}header,.section{border:0}}
+</style>
+</head>
+<body>
+
+<main>
+<header>
+<h1>FFmpegX — Developer Documentation</h1>
+<p class="subtitle">Developer-level documentation of the FFmpegX Android application's process logic, architecture, strengths, and potential improvements.</p>
+<p>The core Android workflow is:</p>
+<div class="flow">
+<div>Android URI / input selection</div><div class="arrow">↓</div>
+<div>Local filesystem input</div><div class="arrow">↓</div>
+<div>Template / editable FFmpeg command</div><div class="arrow">↓</div>
+<div>Argument parsing</div><div class="arrow">↓</div>
+<div>ProcessBuilder → FFmpeg</div><div class="arrow">↓</div>
+<div>Private application output</div><div class="arrow">↓</div>
+<div>MediaStore publication</div><div class="arrow">↓</div>
+<div>Private temporary output deleted</div>
+</div>
+</header>
+
+<section class="section" id="overview"><h2>1. Overview</h2>
+<p>FFmpegX provides a graphical frontend for running FFmpeg commands without requiring the user to interact with a shell. It combines simple GUI controls with an editable command line, allowing common conversions as well as advanced FFmpeg usage.</p>
+<p>FFmpeg remains responsible for media processing. FFmpegX manages file selection, command construction, process execution, output display, and final storage.</p></section>
+
+<section class="section" id="architecture"><h2>2. Architecture</h2>
+<div class="flow">
+<div><strong>Input selection</strong> — Android content URI or filesystem path</div>
+<div><strong>Path resolution</strong> — obtain a local filesystem path</div>
+<div><strong>Template processing</strong> — substitute input/output placeholders</div>
+<div><strong>Review</strong> — display the generated command</div>
+<div><strong>Argument parsing</strong> — turn the command into an argument list</div>
+<div><strong>ProcessBuilder</strong> — execute FFmpeg directly</div>
+<div><strong>Live output</strong> — display FFmpeg stdout/stderr</div>
+<div><strong>Publication</strong> — copy completed output to MediaStore</div>
+<div><strong>Cleanup</strong> — delete the temporary private output</div>
+</div>
+<p>This separation keeps FFmpegX focused on interaction, storage access, process lifecycle, and presentation.</p></section>
+
+<section class="section" id="startup"><h2>3. Startup and Persistent State</h2>
+<p><code>MainActivity</code> starts the Compose UI through <code>FFmpegXScreen()</code>. Startup restores persisted settings, requests required media permissions, restores command templates and the selected FFmpeg binary, and checks the FFmpeg version.</p>
+<ul><li>Selected FFmpeg binary path</li><li>Saved command templates</li><li>Application configuration</li></ul>
+<p>Initial input/output locations use application-accessible external storage where available, falling back to the application's files directory.</p></section>
+
+<section class="section" id="binary"><h2>4. FFmpeg Binary Management</h2>
+<p>The selected FFmpeg binary is copied into private application storage as <code>custom_ffmpeg</code>.</p>
+<pre><code>copyBinaryToInternal()
+    ↓
+delete previous custom binary
+    ↓
+copy selected URI into filesDir/custom_ffmpeg
+    ↓
+set executable permission
+    ↓
+persist binary path</code></pre>
+<p>Version information is obtained by executing <code>ffmpeg -version</code> and displaying the first relevant line.</p></section>
+
+<section class="section" id="uri"><h2>5. URI and File Handling</h2>
+<p>Android file selection commonly returns a <code>content://</code> URI rather than a traditional filesystem path. <code>getPathFromUri()</code> therefore uses a layered approach:</p>
+<ol><li>Handle <code>file://</code> directly.</li><li>Attempt the legacy MediaStore <code>DATA</code> column.</li><li>If no real path is available, copy URI content into the cache directory.</li><li>Return the resulting local path.</li></ol>
+<p>File names use <code>OpenableColumns.DISPLAY_NAME</code> with a URI-path fallback.</p></section>
+
+<section class="section" id="templates"><h2>6. Command Template System</h2>
+<p>Templates provide reusable FFmpeg command patterns. The user can select, load, edit, save, and delete templates.</p>
+<table><tr><th>Placeholder</th><th>Meaning</th></tr>
+<tr><td><code>{input1}</code></td><td>First selected input file</td></tr>
+<tr><td><code>{input2}</code></td><td>Second selected input file</td></tr>
+<tr><td><code>{output_dir}</code></td><td>Selected output directory</td></tr></table>
+<div class="note">The template system is deliberately a command-pattern system rather than a restrictive list of predefined operations.</div>
+<p>For the Linux implementation, the same model is used with <code>{output_dir}</code> as the final destination, for example:</p>
+<pre><code>-i {input1} -c copy {output_dir}/output.mp4</code></pre></section>
+
+<section class="section" id="command"><h2>7. Command Generation and Review</h2>
+<p>The application substitutes selected input/output values into the command pattern. Values are quoted before insertion. The intended workflow is:</p>
+<ol><li>Select inputs.</li><li>Select output destination.</li><li>Select or enter a template.</li><li>Generate the command.</li><li>Review or edit it.</li><li>Run FFmpeg.</li></ol>
+<p>The actual FFmpeg command remains visible and editable, preserving advanced-user flexibility.</p></section>
+
+<section class="section" id="parser"><h2>8. Argument Parsing</h2>
+<p>The Android implementation uses a character-by-character parser supporting whitespace plus single- and double-quoted arguments. The resulting arguments are passed separately to <code>ProcessBuilder</code>.</p>
+<pre><code>-i "/path/My Video.mp4" -c copy "/path/output file.mp4"</code></pre>
+<p>Conceptually this becomes:</p>
+<pre><code>["-i", "/path/My Video.mp4", "-c", "copy", "/path/output file.mp4"]</code></pre>
+<p>This avoids relying on a shell for command interpretation.</p></section>
+
+<section class="section" id="execution"><h2>9. FFmpeg Process Execution</h2>
+<p>FFmpeg is executed with <code>ProcessBuilder</code>, not through <code>sh -c</code>. Standard output and standard error are combined with <code>redirectErrorStream(true)</code>. Execution occurs on <code>Dispatchers.IO</code>.</p>
+<pre><code>command string
+    ↓
+argument parser
+    ↓
+List&lt;String&gt;
+    ↓
+ProcessBuilder
+    ↓
+FFmpeg process</code></pre></section>
+
+<section class="section" id="console"><h2>10. Real-Time Console Output</h2>
+<p>FFmpeg output is read while the process is running and displayed in the status/output interface. Combining stdout and stderr makes the interface behave like an FFmpeg terminal and exposes codec, parameter, input, output, and runtime errors.</p></section>
+
+<section class="section" id="publication"><h2>11. MediaStore Publication</h2>
+<p>On Android, application-private output is not automatically equivalent to a normal user-visible media file. <code>publishToPublic()</code> creates a MediaStore entry, copies the completed private file into it, and finalizes the item.</p>
+<h3>Single output directory design</h3>
+<p>The simplified design can put all FFmpegX output into:</p>
+<pre><code>Movies/FFmpegX</code></pre>
+<p>MIME type identification may still be retained for metadata, but it does not need to determine the destination. Unknown extensions may use <code>application/octet-stream</code> while still being stored in <code>Movies/FFmpegX</code>.</p>
+<h3>MediaStore pending state</h3>
+<p>On Android Q and later, <code>IS_PENDING=1</code> is used during copying and <code>IS_PENDING=0</code> after successful completion, preventing a partial file from being exposed as complete.</p></section>
+
+<section class="section" id="cleanup"><h2>12. Post-Publication Cleanup</h2>
+<p>After successful MediaStore publication, the application executes:</p>
+<pre><code>privateFile.delete()</code></pre>
+<p>This is intentionally performed only after the file has been completely copied and the MediaStore item finalized. It prevents two complete copies of a potentially large media file from being retained.</p>
+<table><tr><th>Without cleanup</th><th>With cleanup</th></tr>
+<tr><td>2 GB private + 2 GB public = 4 GB retained</td><td>2 GB public remains after publication</td></tr></table>
+<p>A useful refinement is to check the Boolean return:</p>
+<pre><code>if (!privateFile.delete()) {
+    // Log cleanup failure.
+}</code></pre>
+<p>A cleanup failure should generally be treated as a storage-cleanup problem rather than a failed conversion when the public copy already succeeded.</p></section>
+
+<section class="section" id="strengths"><h2>13. Architectural Strengths</h2>
+<h3>1. Direct FFmpeg execution</h3><p>FFmpeg is launched directly rather than through a shell, giving predictable argument handling.</p>
+<h3>2. Reviewable and editable commands</h3><p>The user can inspect and modify the actual FFmpeg command.</p>
+<h3>3. Real-time diagnostic output</h3><p>FFmpeg output is visible while operations run, making failures easier to diagnose.</p>
+<h3>4. Background execution</h3><p>Long-running work is kept away from the UI thread.</p>
+<h3>5. Flexible URI fallback</h3><p>The application can handle providers that do not expose a conventional filesystem path.</p>
+<h3>6. Persistent configuration</h3><p>The FFmpeg binary and templates can survive application restarts.</p>
+<h3>7. Efficient storage lifecycle</h3><p>Temporary private output is removed after successful publication.</p>
+<h3>8. Minimal assumptions about FFmpeg</h3><p>The frontend delegates codec and container functionality to FFmpeg instead of attempting to reproduce it.</p></section>
+
+<section class="section" id="improvements"><h2>14. Potential Improvements</h2>
+<h3>14.1 Stop / Cancel support</h3><p>Retain the active process reference and expose a Stop button; use <code>destroy()</code> followed by <code>destroyForcibly()</code> if necessary.</p>
+<h3>14.2 Prevent concurrent runs</h3><p>Disable Run while FFmpeg is active.</p>
+<h3>14.3 ViewModel separation</h3><p>Move process state, templates, and execution logic into a ViewModel to improve lifecycle handling.</p>
+<h3>14.4 Console buffering</h3><p>A bounded or buffered console model would scale better for very verbose operations than repeatedly rebuilding a large string.</p>
+<h3>14.5 Parser validation</h3><p>Detect unmatched quotes and report a useful error before starting FFmpeg.</p>
+<h3>14.6 Template persistence</h3><p>JSON would be more extensible if templates later acquire descriptions, categories, or metadata.</p>
+<h3>14.7 URI strategy</h3><p>Reliance on the legacy <code>MediaStore.DATA</code> column could be reduced by consistently copying content URIs into application storage when a filesystem path is unavailable.</p>
+<h3>14.8 Publication error handling</h3><p>Explicitly handle a null MediaStore insertion result and clean up partially created MediaStore items when appropriate.</p>
+<h3>14.9 Publication sequencing</h3><p>Await or sequence publication operations when processing multiple outputs so completion and cleanup ordering is deterministic.</p>
+<h3>14.10 Scanner timing</h3><p>Review scanner usage alongside MediaStore publication, particularly on Android Q+.</p>
+<h3>14.11 Future modular structure</h3>
+<table><tr><th>Component</th><th>Responsibility</th></tr>
+<tr><td><code>FFmpegRunner</code></td><td>Process creation, execution, output and cancellation</td></tr>
+<tr><td><code>StorageManager</code></td><td>URI resolution, temporary files and publication</td></tr>
+<tr><td><code>TemplateRepository</code></td><td>Template persistence and CRUD</td></tr>
+<tr><td><code>FFmpegViewModel</code></td><td>UI state and lifecycle-aware orchestration</td></tr>
+<tr><td><code>FFmpegXScreen</code></td><td>Compose UI</td></tr>
+</table></section>
+
+<section class="section" id="linux"><h2>15. Linux PySimpleGUI Variant</h2>
+<p>The Linux version follows the same conceptual process while removing Android-specific MediaStore publication.</p>
+<div class="flow">
+<div>Input file selection</div><div class="arrow">↓</div>
+<div>Select Output Dir</div><div class="arrow">↓</div>
+<div>Template / editable command</div><div class="arrow">↓</div>
+<div>Placeholder substitution</div><div class="arrow">↓</div>
+<div><code>shlex.split()</code></div><div class="arrow">↓</div>
+<div><code>subprocess.Popen()</code></div><div class="arrow">↓</div>
+<div>Direct output into selected directory</div>
+</div>
+<p>The selected output directory is the final destination. A template can use:</p>
+<pre><code>-i {input1} -c copy {output_dir}/output.mp4</code></pre>
+<p>This preserves the template, review, argument parsing, direct process execution, and live-output concepts.</p></section>
+
+<section class="section"><h2>16. Overall Process Summary</h2>
+<pre><code>FFmpegX
+  │
+  ├─ Select input files
+  ├─ Select/load template
+  ├─ Substitute paths and output directory
+  ├─ Review / edit
+  ├─ Parse arguments
+  ├─ ProcessBuilder → FFmpeg
+  ├─ Live console output
+  ├─ Android: MediaStore / Linux: direct output
+  └─ Android: delete temporary private output</code></pre>
+<p>The central design principle is to keep the frontend thin: FFmpegX handles interaction, path handling, command construction, process management, diagnostics, and final storage, while FFmpeg remains the media-processing engine.</p></section>
+
+<footer>FFmpegX — Developer Documentation</footer>
+</main>
+</div>
+</body>
+</html>
